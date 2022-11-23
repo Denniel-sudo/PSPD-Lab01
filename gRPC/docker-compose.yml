@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  master:
+    container_name: grpc_master
+    build: .
+    entrypoint: ["./start-master.sh" ]
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/wordcount
+    depends_on:
+      - worker1
+      - worker2
+    links:
+      - worker1
+      - worker2
+    networks:
+      - rpc_call
+  worker1:
+    build: .
+    container_name: grpc_worker1
+    entrypoint: [ "./start-worker.sh" ]
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/wordcount
+    ports:
+      - "8089:8089"
+    networks:
+      - rpc_call
+  worker2:
+    build: .
+    container_name: grpc_worker2
+    entrypoint: ["./start-worker.sh" ]
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/wordcount
+    ports:
+      - "8090:8089"
+    networks:
+      - rpc_call
+networks:
+  rpc_call:
