@@ -1,1 +1,6 @@
 __pycache__
+gRPC/src/divided_files
+wordcount_pb2_grpc.py
+wordcount_pb2.py
+wordcount_pb2_grpc.pyi
+gRPC/src/divided_files
