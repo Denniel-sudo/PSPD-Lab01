@@ -25,7 +25,7 @@ typedef struct parameters {
 static word_freq_link newLink(char *str) {
   word_freq_link newLink = malloc(sizeof (struct word_freq));
   strcpy(newLink->word, str);
-  newLink->freq = 0;
+  newLink->freq = 1;
 
   return newLink;
 }
