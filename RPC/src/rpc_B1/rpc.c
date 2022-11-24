@@ -46,8 +46,15 @@ void exists(char *str, Words_freq wordFreq) {
   wordFreq->tam += 1;
 }
 
-Words_freq numDiffWords(parameters params) {
+char buffer[4];
+void convertIntToString(int num) {
+  buffer[0] = num + '0';
+  buffer[1] = '\0';
+}
+
+char *numDiffWords(parameters params) {
   char *subStr;
+  char *ret;
   Words_freq wordsFreq = malloc(sizeof *wordsFreq);
   wordsFreq->words = malloc(sizeof(word_freq_link));
   wordsFreq->words->next = NULL;
@@ -60,7 +67,28 @@ Words_freq numDiffWords(parameters params) {
     subStr = strtok(NULL, " ");
   }
 
-  return wordsFreq;
+  ret = malloc(sizeof (char) * wordsFreq->tam * 100);
+
+  char totalWords[] = "Total de palavras : ";
+  convertIntToString(wordsFreq->tam);
+  strcat(totalWords, buffer);
+  strcat(totalWords, "\n");
+  strcat(ret, totalWords);
+
+  word_freq_link link = wordsFreq->words->next;
+  while (link != NULL) {
+    char *aux;
+    strcpy(aux, link->word);
+    strcat(aux, ": ");
+    convertIntToString(link->freq);
+    strcat(aux, buffer);
+    strcat(aux, "\n");
+
+    strcat(ret, aux);
+    
+    link = link->next;
+  }
+  return ret;
 }
 
 int main(int argc, char **argv) {
@@ -97,18 +125,22 @@ int main(int argc, char **argv) {
     }
   }
   params.tam = index;
+
+  char *ret = numDiffWords(params);
+
+  printf("%s", ret);
   
-  Words_freq wordsFreq = numDiffWords(params);
+  // Words_freq wordsFreq = numDiffWords(params);
 
-  printf("Total de palavras: %d\n", wordsFreq->tam);
+  // printf("Total de palavras: %d\n", wordsFreq->tam);
 
-  word_freq_link link = wordsFreq->words->next;
-  int count = wordsFreq->tam-1;
-  while (link != NULL) {
-    printf("i[%d] -> %s: %d\n", count, link->word, link->freq);
-    count--;
-    link = link->next;
-  }
+  // word_freq_link link = wordsFreq->words->next;
+  // int count = wordsFreq->tam-1;
+  // while (link != NULL) {
+  //   printf("i[%d] -> %s: %d\n", count, link->word, link->freq);
+  //   count--;
+  //   link = link->next;
+  // }
 
   return 0;
 }

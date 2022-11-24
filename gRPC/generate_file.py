@@ -9,8 +9,8 @@ for word in file2.read().split():
    PsudoRandomWords.append(f'{word} ')
 
 index = 0
-TAM_FILE = 100000 # bytes
-for x in range(100000):
+TAM_FILE = 10000 # bytes
+for x in range(10000):
    index = random.randint(0,len(PsudoRandomWords) - 1)
    file1.write(PsudoRandomWords[index])
 

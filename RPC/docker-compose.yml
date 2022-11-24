@@ -6,7 +6,7 @@ services:
     volumes:
       - type: bind
         source: ./src
-        target: /app
+        target: /app/src
   worker:
     build: .
     container_name: rpc_worker
@@ -14,4 +14,4 @@ services:
     volumes:
       - type: bind
         source: ./src
-        target: /app
+        target: /app/src
