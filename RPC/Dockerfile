@@ -8,6 +8,6 @@ WORKDIR /app/src
 
 RUN apt update
 
-RUN apt-get install gcc make rpcbind gdb -y
+RUN apt-get install gcc make rpcbind gdb nfs-server -y
 
 CMD [ "tail", "-f", "/dev/null" ]

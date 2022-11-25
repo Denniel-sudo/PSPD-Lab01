@@ -2,6 +2,7 @@ services:
   master:
     build: .
     container_name: rpc_master
+    network_mode: bridge
     security_opt:
       - seccomp:unconfined
     # entrypoint: ["bash", "./start.sh"]
@@ -11,9 +12,12 @@ services:
         target: /app/src
     cap_add:
       - SYS_PTRACE
+    ports:
+      - "5000:5000"
   worker:
     build: .
     container_name: rpc_worker
+    network_mode: bridge
     security_opt:
       - seccomp:unconfined
     # entrypoint: ["bash", "./start.sh"]
@@ -21,3 +25,7 @@ services:
       - type: bind
         source: ./src
         target: /app/src
+    cap_add:
+      - SYS_PTRACE
+    ports:
+      - "5001:5000"
