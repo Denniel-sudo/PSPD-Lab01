@@ -4,91 +4,138 @@
 
 #define TAM_WORDS 654633
 
-typedef struct word_freq *word_freq_link;
-struct word_freq {
+typedef struct word_freq {
   char word[100];
   int freq;
-  word_freq_link next;
-};
+  struct word_freq *next;
+} word_freq_link;
 
-typedef struct words_freq *Words_freq;
-struct words_freq {
-  word_freq_link words;
+
+typedef struct list_words {
+  struct word_freq *words;
   int tam;
-};
+} Words_freq;
 
 typedef struct parameters {
   char words[TAM_WORDS];
   int tam;
 } parameters;
 
-static word_freq_link newLink(char *str) {
-  word_freq_link newLink = malloc(sizeof (struct word_freq));
-  strcpy(newLink->word, str);
-  newLink->freq = 1;
+Words_freq *initWF(){
+  Words_freq *wf = malloc(sizeof(Words_freq));
+  wf->words = NULL;
+  wf->tam = 0;
 
-  return newLink;
+  return wf;
 }
 
-void exists(char *str, Words_freq wordFreq) {
-  word_freq_link link = wordFreq->words->next;
-  while (link != NULL) {
-    if (strcmp(str, link->word) == 0) {
+void newWordLink(Words_freq *wf, word_freq_link *last_link, char *str) {
+  word_freq_link *new_link = malloc(sizeof(word_freq_link));
+  new_link->freq = 1;
+
+  strcpy(new_link->word, str);
+  new_link->next = NULL;
+
+  wf->tam++;
+  if (wf->words == NULL){
+    wf->words = new_link;
+    return;
+  }
+
+  last_link->next = new_link;
+}
+
+// static word_freq_link newLink(char *str) {
+//   word_freq_link newLink = malloc(sizeof (struct word_freq));
+//   strcpy(newLink->word, str);
+//   newLink->freq = 1;
+
+//   return newLink;
+// }
+
+void exists(Words_freq *wf, char *str){
+  if (wf->words == NULL) {
+    newWordLink(wf, wf->words, str);
+    return;
+  }
+
+  word_freq_link *link = wf->words;
+
+  while(link != NULL){
+    if(strcmp(link->word, str) == 0){
       link->freq += 1;
       return;
     }
+
     link = link->next;
   }
+  link = wf->words;
+
+  while(link->next != NULL) link = link->next;
+  newWordLink(wf, link, str);
+}
+
+void imprimirLista (Words_freq *wf) {
+  word_freq_link *link = wf->words;
+
+  while(link != NULL){
+    printf("word: %s\nfreq: %d\n", link->word, link->freq);
+    link = link->next;
+  }
+}
+
+// void exists(char *str, Words_freq wordFreq) {
+//   word_freq_link link = wordFreq->words->next;
+//   while (link != NULL) {
+//     if (strcmp(str, link->word) == 0) {
+//       link->freq += 1;
+//       return;
+//     }
+//     link = link->next;
+//   }
   
-  word_freq_link new = newLink(str);
-  new->next = wordFreq->words->next;
-  wordFreq->words->next = new;
-  wordFreq->tam += 1;
-}
+//   word_freq_link new = newLink(str);
+//   new->next = wordFreq->words->next;
+//   wordFreq->words->next = new;
+//   wordFreq->tam += 1;
+// }
 
-char buffer[4];
-void convertIntToString(int num) {
-  buffer[0] = num + '0';
-  buffer[1] = '\0';
-}
+char *numDiffWords(Words_freq *wf, parameters params){
+  char *sub_str = strtok(params.words, " ");
 
-char *numDiffWords(parameters params) {
-  char *subStr;
-  char *ret;
-  Words_freq wordsFreq = malloc(sizeof *wordsFreq);
-  wordsFreq->words = malloc(sizeof(word_freq_link));
-  wordsFreq->words->next = NULL;
-  wordsFreq->tam = 0;
-
-  subStr = strtok(params.words, " ");
-
-  while(subStr != NULL) {
-    exists(subStr, wordsFreq);
-    subStr = strtok(NULL, " ");
+  while(sub_str != NULL){
+    exists(wf, sub_str);
+    sub_str = strtok(NULL, " ");
+    // imprimirLista(wf);
   }
 
-  ret = malloc(sizeof (char) * wordsFreq->tam * 100);
+  char *response = malloc(sizeof(char) * (wf->tam * 101 + 30));
 
-  char totalWords[] = "Total de palavras : ";
-  convertIntToString(wordsFreq->tam);
-  strcat(totalWords, buffer);
-  strcat(totalWords, "\n");
-  strcat(ret, totalWords);
+  char total_words[25] = "Total de palavras: ";
+  char buffer_total[5];
+  
+  sprintf(buffer_total, "%d", wf->tam);
+  strcat(total_words, buffer_total);
+  strcat(total_words, "\n");
+  strcat(response, total_words);
 
-  word_freq_link link = wordsFreq->words->next;
-  while (link != NULL) {
-    char *aux;
+  word_freq_link *link = wf->words;
+
+  while(link != NULL){
+    char aux[10000];
+    char buffer[10];
+
     strcpy(aux, link->word);
     strcat(aux, ": ");
-    convertIntToString(link->freq);
+    sprintf(buffer, "%d", link->freq);
     strcat(aux, buffer);
     strcat(aux, "\n");
+    strcat(response, aux);
 
-    strcat(ret, aux);
-    
     link = link->next;
   }
-  return ret;
+
+  return response;
 }
 
 int main(int argc, char **argv) {
@@ -96,19 +143,18 @@ int main(int argc, char **argv) {
   parameters params;
   char buffer[TAM_WORDS];
   int buffertTam;
-  char path[100] = {"../../../gRPC/src/Models/example.txt"};
+  char path[100] = "./example.txt";
 
-  //if (argc < 2) {
-    //printf("Necessario passar caminho do arquivo de entrada\n");
-    //return 0;
-  //}
+  Words_freq *wf = initWF();
 
+  // Abre o arquivo example.txt
   arq = fopen(path, "r");
   if (arq == NULL) {
     printf("Erro na abertura de arquivo!\n");
-    return 0;
+    return 1;
   }
   
+  // pega o tamanho máximo
   buffertTam = fread(buffer, 1, TAM_WORDS, arq);
 
   if (buffertTam == 0) {
@@ -116,6 +162,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  // percorre todo o arquivo
   int index = 0;
   for (int i = 0; i <= buffertTam; i++) {
     if ((buffer[i] >= 65 && buffer[i] <= 90) ||
@@ -126,9 +173,11 @@ int main(int argc, char **argv) {
   }
   params.tam = index;
 
-  char *ret = numDiffWords(params);
+  char *response;
 
-  printf("%s", ret);
+  response = numDiffWords(wf, params);
+
+  printf("%s", response);
   
   // Words_freq wordsFreq = numDiffWords(params);
 

@@ -2,15 +2,21 @@ services:
   master:
     build: .
     container_name: rpc_master
-    entrypoint: ["bash", "./start.sh"]
+    security_opt:
+      - seccomp:unconfined
+    # entrypoint: ["bash", "./start.sh"]
     volumes:
       - type: bind
         source: ./src
         target: /app/src
+    cap_add:
+      - SYS_PTRACE
   worker:
     build: .
     container_name: rpc_worker
-    entrypoint: ["bash", "./start.sh"]
+    security_opt:
+      - seccomp:unconfined
+    # entrypoint: ["bash", "./start.sh"]
     volumes:
       - type: bind
         source: ./src

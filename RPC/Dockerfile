@@ -8,6 +8,6 @@ WORKDIR /app/src
 
 RUN apt update
 
-RUN apt-get install gcc make rpcbind -y
+RUN apt-get install gcc make rpcbind gdb -y
 
 CMD [ "tail", "-f", "/dev/null" ]
